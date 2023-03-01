@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+
+  kaimono-catalog-service:
+    depends_on:
+      - kaimono-postgres
+    image: "kaimono-catalog-service"
+    container_name: "kaimono-catalog-service"
+    ports:
+      - "9001:9001"
+      - "8001:8001"
+    environment:
+      - BPL_JVM_THREAD_COUNT=50
+      - BPL_DEBUG_ENABLED=true
+      - BPL_DEBUG_PORT=8001
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://kaimono-postgres:5432/kaimonodb_catalog
+
+  kaimono-postgres:
+    image: "postgres:14.4"
+    container_name: "kaimono-postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=kaimonodb_catalog
