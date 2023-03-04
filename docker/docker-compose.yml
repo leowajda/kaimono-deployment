@@ -13,7 +13,23 @@ services:
       - BPL_JVM_THREAD_COUNT=50
       - BPL_DEBUG_ENABLED=true
       - BPL_DEBUG_PORT=8001
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://kaimono-postgres:5432/kaimonodb_catalog
+      - SPRING_FLYWAY_URL=jdbc:postgresql://kaimono-postgres:5432/kaimonodb_catalog
+      - SPRING_R2DBC_URL=r2dbc:postgresql://kaimono-postgres:5432/kaimonodb_catalog
+
+  kaimono-order-service:
+    depends_on:
+      - kaimono-postgres
+    image: "kaimono-order-service"
+    container_name: "kaimono-order-service"
+    ports:
+      - "9002:9002"
+      - "8002:8002"
+    environment:
+      - BPL_DEBUG_ENABLED=true
+      - BPL_DEBUG_PORT=8002
+      - KAIMONO_CATALOG_SERVICE_URI=http://kaimono-catalog-service:9001
+      - SPRING_R2DBC_URL=r2dbc:postgresql://kaimono-postgres:5432/kaimonodb_order
+      - SPRING_FLYWAY_URL=jdbc:postgresql://kaimono-postgres:5432/kaimonodb_order
 
   kaimono-postgres:
     image: "postgres:14.4"
@@ -23,4 +39,5 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=kaimonodb_catalog
+    volumes:
+      - ./postgresql/init.sql:/docker-entrypoint-initdb.d/init.sql
